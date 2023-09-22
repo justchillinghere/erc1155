@@ -27,7 +27,8 @@ contract MyERC1155 is IERC1155, ERC165 {
     ) public {
         require(msg.sender == owner, "ERC1155: you are not an owner");
         require(to != address(0), "ERC1155: mint to the zero address");
-        _mint(to, id, amount);
+        _balances[id][to] += amount;
+        emit TransferSingle(msg.sender, address(0), to, id, amount);
         if (_isContract(to)) {
             _checkSafeTransferAcceptance(
                 msg.sender,
@@ -35,6 +36,34 @@ contract MyERC1155 is IERC1155, ERC165 {
                 to,
                 id,
                 amount,
+                data
+            );
+        }
+    }
+
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public {
+        require(msg.sender == owner, "ERC1155: you are not an owner");
+        require(to != address(0), "ERC1155: mint to the zero address");
+        require(
+            ids.length == amounts.length,
+            "ids and amounts length mismatch"
+        );
+        for (uint256 i = 0; i < ids.length; i++) {
+            _balances[ids[i]][to] += amounts[i];
+        }
+        emit TransferBatch(msg.sender, address(0), to, ids, amounts);
+        if (_isContract(to)) {
+            _checkSafeBatchTransferAcceptance(
+                msg.sender,
+                address(0),
+                to,
+                ids,
+                amounts,
                 data
             );
         }
@@ -128,8 +157,8 @@ contract MyERC1155 is IERC1155, ERC165 {
         address operator,
         address from,
         address to,
-        uint256[] calldata ids,
-        uint256[] calldata amounts,
+        uint256[] memory ids,
+        uint256[] memory amounts,
         bytes memory data
     ) private {
         try
