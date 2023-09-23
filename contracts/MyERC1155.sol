@@ -85,21 +85,13 @@ contract MyERC1155 is IERC1155, ERC165 {
         return _balances[id][account];
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(ERC165) returns (bool) {
-        return
-            interfaceId == type(IERC1155).interfaceId ||
-            super.supportsInterface(interfaceId);
-    }
-
     function balanceOfBatch(
         address[] calldata accounts,
         uint256[] calldata ids
     ) public view returns (uint256[] memory) {
         require(
             accounts.length == ids.length,
-            "Accounts and ids length mismatch"
+            "ERC1155: Accounts and ids length mismatch"
         );
         uint256[] memory balanceBatch = new uint256[](accounts.length);
         for (uint256 i = 0; i < accounts.length; i++) {
@@ -118,6 +110,14 @@ contract MyERC1155 is IERC1155, ERC165 {
         address operator
     ) public view returns (bool) {
         return _operatorApprovals[account][operator];
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC165) returns (bool) {
+        return
+            interfaceId == type(IERC1155).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     function _isContract(address addr) internal view returns (bool) {
@@ -218,7 +218,7 @@ contract MyERC1155 is IERC1155, ERC165 {
     ) external {
         require(
             ids.length == amounts.length,
-            "Amounts and ids length mismatch"
+            "ERC1155: Amounts and ids length mismatch"
         );
         require(
             to != address(0),
