@@ -10,8 +10,7 @@ const delay = async (time: number) => {
 };
 
 async function main() {
-  const uri =
-    "https://ipfs.io/ipfs/QmaoGJ8Y2CFwyUwu4yZ71Dc9y71JEtVPCfNZkvpf2LgdTN?filename=ERC1155_metadata.json";
+  const uri = "https://pin.ski/3rrgxnq";
   const MyContract = await ethers.getContractFactory("MyERC1155");
   const myContract = await MyContract.deploy(uri);
 

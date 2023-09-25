@@ -31,10 +31,11 @@ task(
     const event = tokenContractReceipt.events?.find(
       (event) => event.event === "TransferSingle"
     );
-    const eventOperator: Address = event?.args!["operator"];
-    const eventTo: Address = event?.args!["to"];
-    const eventId: Address = event?.args!["id"];
-    const eventValue: Address = event?.args!["value"];
+
+    const eventOperator: Address = event?.args!["_operator"];
+    const eventTo: Address = event?.args!["_to"];
+    const eventId: Address = event?.args!["_id"];
+    const eventValue: Address = event?.args!["_value"];
     console.log("The owner minted tokens");
     console.log(`Operator address: ${eventOperator}`);
     console.log(`Minted to: ${eventTo}`);
