@@ -8,6 +8,8 @@ import {
   MyERC1155__factory,
   MyERC1155Receiver,
   MyERC1155Receiver__factory,
+  BrokenERC1155Receiver,
+  BrokenERC1155Receiver__factory,
   GameItems,
   GameItems__factory,
 } from "../src/types";
@@ -327,8 +329,8 @@ describe("Test ERC1155 implementation", function () {
         amounts[oneTransferIndex],
         bytesData
       );
-      expect(
-        await myERC1155.safeTransferFrom(
+      await expect(
+        myERC1155.safeTransferFrom(
           user1.address,
           user2.address,
           ids[oneTransferIndex],
@@ -376,6 +378,22 @@ describe("Test ERC1155 implementation", function () {
       ).to.be.revertedWith(
         "ERC1155: transfer to non-ERC1155Receiver implementer"
       );
+    });
+    it("Should revert if trying to transfer to a IERC1155Receiver Contract with broken method", async () => {
+      const ReceiverContract = (await ethers.getContractFactory(
+        "BrokenERC1155Receiver"
+      )) as BrokenERC1155Receiver__factory;
+      const receiverContract = await ReceiverContract.deploy();
+      await receiverContract.deployed();
+      await expect(
+        myERC1155.safeTransferFrom(
+          owner.address,
+          receiverContract.address,
+          ids[oneTransferIndex],
+          amounts[oneTransferIndex],
+          bytesData
+        )
+      ).to.be.revertedWith("ERC1155: ERC1155Receiver rejected tokens");
     });
 
     it("should revert if trying to batch transfer to the zero address", async () => {
@@ -444,6 +462,22 @@ describe("Test ERC1155 implementation", function () {
       ).to.be.revertedWith(
         "ERC1155: transfer to non-ERC1155Receiver implementer"
       );
+    });
+    it("Should revert if trying to transfer to a IERC1155Receiver Contract with broken method", async () => {
+      const ReceiverContract = (await ethers.getContractFactory(
+        "BrokenERC1155Receiver"
+      )) as BrokenERC1155Receiver__factory;
+      const receiverContract = await ReceiverContract.deploy();
+      await receiverContract.deployed();
+      await expect(
+        myERC1155.safeBatchTransferFrom(
+          owner.address,
+          receiverContract.address,
+          ids,
+          amounts,
+          bytesData
+        )
+      ).to.be.revertedWith("ERC1155: ERC1155Receiver rejected tokens");
     });
   });
 });

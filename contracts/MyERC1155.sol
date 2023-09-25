@@ -274,7 +274,7 @@ contract MyERC1155 is IERC1155, ERC165 {
             "ERC1155: cannot transfer to the zero address"
         );
         require(
-            owner == msg.sender || isApprovedForAll(from, msg.sender),
+            from == msg.sender || isApprovedForAll(from, msg.sender),
             "ERC1155: insufficient allowance"
         );
         require(_balances[id][from] >= amount, "ERC1155: insufficient balance");
@@ -312,7 +312,7 @@ contract MyERC1155 is IERC1155, ERC165 {
             "ERC1155: cannot transfer to the zero address"
         );
         require(
-            owner == msg.sender || isApprovedForAll(from, msg.sender),
+            from == msg.sender || isApprovedForAll(from, msg.sender),
             "ERC1155: insufficient allowance"
         );
         for (uint256 i = 0; i < ids.length; i++) {
