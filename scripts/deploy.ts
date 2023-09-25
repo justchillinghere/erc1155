@@ -1,5 +1,5 @@
 import { ethers, run, network } from "hardhat";
-import uniswapV2Data from "../uniswapV2ContractsData.json";
+import process from "process";
 
 const delay = async (time: number) => {
   return new Promise((resolve: any) => {
@@ -10,10 +10,10 @@ const delay = async (time: number) => {
 };
 
 async function main() {
-  const router = uniswapV2Data.router.address;
-  const factory = uniswapV2Data.factory.address;
-  const MyContract = await ethers.getContractFactory("LiquidityProvider");
-  const myContract = await MyContract.deploy(router, factory);
+  const uri =
+    "https://ipfs.io/ipfs/QmaoGJ8Y2CFwyUwu4yZ71Dc9y71JEtVPCfNZkvpf2LgdTN?filename=ERC1155_metadata.json";
+  const MyContract = await ethers.getContractFactory("MyERC1155");
+  const myContract = await MyContract.deploy(uri);
 
   await myContract.deployed();
 
@@ -25,8 +25,8 @@ async function main() {
   try {
     await run("verify:verify", {
       address: myContract!.address,
-      contract: "contracts/LiquidityProvider.sol:LiquidityProvider",
-      constructorArguments: [router, factory],
+      contract: "contracts/MyERC1155.sol:MyERC1155",
+      constructorArguments: [uri],
     });
     console.log("verify success");
     return;

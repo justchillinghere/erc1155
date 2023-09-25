@@ -1,0 +1,11 @@
+{
+  "name": "My ERC1155 Exapmle",
+  "description": "Description of the token",
+  "image": "https://ipfs.io/ipfs/QmPqXFP2QS9AzZucF2PnkCQasb7cPQ87aYbQUEQaFuAL4W?filename=GettyImages-145577979-d97e955b5d8043fd96747447451f78b7.jpg",
+  "attributes": [
+    {
+      "trait_type": "Attribute Name",
+      "value": "Attribute Value"
+    }
+  ]
+}

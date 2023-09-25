@@ -4,21 +4,52 @@ import "./interfaces/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
+/**
+ * @dev Implementation of the basic standard multi-token using Open Zeppelin Interface.
+ * See https://eips.ethereum.org/EIPS/eip-1155
+ * Originally based on code by Enjin: https://github.com/enjin/erc-1155
+ *
+ */
 contract MyERC1155 is IERC1155, ERC165 {
     address public owner;
-
     // Mapping from token ID to account balances
     mapping(uint256 => mapping(address => uint256)) private _balances;
+    // Mapping from token ID to operator approvals
     mapping(uint256 => address) private _tokenApprovals;
     // Mapping from account to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
+    // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
-    constructor(string memory uri) {
+    constructor(string memory uriInput) {
         owner = msg.sender;
-        _uri = uri;
+        _uri = uriInput;
     }
 
+    /**
+     *
+     * This implementation returns the same URI for *all* token types. It relies
+     * on the token type ID substitution mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * Clients calling this function must replace the `\{id\}` substring with the
+     * actual token type ID.
+     */
+    function uri(uint256) public view returns (string memory) {
+        return _uri;
+    }
+
+    /**
+     * @dev Creates `amount` tokens of token type `id`, and assigns them to `to`.
+     *
+     * Emits a {TransferSingle} event.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
+     * acceptance magic value.
+     */
     function mint(
         address to,
         uint256 id,
@@ -41,6 +72,17 @@ contract MyERC1155 is IERC1155, ERC165 {
         }
     }
 
+    /**
+     * @dev Batched version of mint.
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - `ids` and `amounts` must have the same length.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
+     * acceptance magic value.
+     */
     function mintBatch(
         address to,
         uint256[] memory ids,
@@ -69,11 +111,13 @@ contract MyERC1155 is IERC1155, ERC165 {
         }
     }
 
-    function _mint(address to, uint256 id, uint256 amount) internal {
-        _balances[id][to] += amount;
-        emit TransferSingle(msg.sender, address(0), to, id, amount);
-    }
-
+    /**
+     * @dev See {IERC1155-balanceOf}.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     */
     function balanceOf(
         address account,
         uint256 id
@@ -85,6 +129,13 @@ contract MyERC1155 is IERC1155, ERC165 {
         return _balances[id][account];
     }
 
+    /**
+     * @dev See {IERC1155-balanceOfBatch}.
+     *
+     * Requirements:
+     *
+     * - `accounts` and `ids` must have the same length.
+     */
     function balanceOfBatch(
         address[] calldata accounts,
         uint256[] calldata ids
@@ -100,11 +151,19 @@ contract MyERC1155 is IERC1155, ERC165 {
         return balanceBatch;
     }
 
+    /**
+     * @dev Approve `operator` to operate on all of `owner` tokens
+     *
+     * Emits an {ApprovalForAll} event.
+     */
     function setApprovalForAll(address operator, bool approved) external {
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
+    /**
+     * @dev Queries the approval status of an operator for a given owner
+     */
     function isApprovedForAll(
         address account,
         address operator
@@ -112,6 +171,9 @@ contract MyERC1155 is IERC1155, ERC165 {
         return _operatorApprovals[account][operator];
     }
 
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
     function supportsInterface(
         bytes4 interfaceId
     ) public view virtual override(ERC165) returns (bool) {
@@ -120,6 +182,9 @@ contract MyERC1155 is IERC1155, ERC165 {
             super.supportsInterface(interfaceId);
     }
 
+    /**
+     * @dev Checks if the given address is a contract
+     */
     function _isContract(address addr) internal view returns (bool) {
         uint256 size;
         assembly {
@@ -128,6 +193,14 @@ contract MyERC1155 is IERC1155, ERC165 {
         return size > 0;
     }
 
+    /**
+     * @dev See {IERC1155Receiver-onERC1155Received}.
+     *
+     * Internal util function that checks
+     * if the given address is a contract that
+     * can accept ERC1155 tokens
+     *
+     */
     function _checkSafeTransferAcceptance(
         address operator,
         address from,
@@ -153,6 +226,14 @@ contract MyERC1155 is IERC1155, ERC165 {
         }
     }
 
+    /**
+     * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+     *
+     * Internal util function that checks
+     * if the given address is a contract that
+     * can accept batch of ERC1155 tokens
+     *
+     */
     function _checkSafeBatchTransferAcceptance(
         address operator,
         address from,
@@ -178,6 +259,9 @@ contract MyERC1155 is IERC1155, ERC165 {
         }
     }
 
+    /**
+     * @dev See {IERC1155-safeTransferFrom}.
+     */
     function safeTransferFrom(
         address from,
         address to,
@@ -209,6 +293,9 @@ contract MyERC1155 is IERC1155, ERC165 {
         }
     }
 
+    /**
+     * @dev See {IERC1155-safeBatchTransferFrom}.
+     */
     function safeBatchTransferFrom(
         address from,
         address to,

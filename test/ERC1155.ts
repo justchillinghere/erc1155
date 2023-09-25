@@ -18,6 +18,7 @@ describe("Test ERC1155 implementation", function () {
   let gameItems: GameItems;
   let GameItems: GameItems__factory;
   const bytesData = "0x";
+  const uri = "https://example.com/";
 
   let owner: SignerWithAddress,
     user1: SignerWithAddress,
@@ -32,7 +33,7 @@ describe("Test ERC1155 implementation", function () {
     MyERC1155 = (await ethers.getContractFactory(
       "MyERC1155"
     )) as MyERC1155__factory;
-    myERC1155 = await MyERC1155.deploy("https://example.com/");
+    myERC1155 = await MyERC1155.deploy(uri);
 
     // GameItems = (await ethers.getContractFactory(
     //   "GameItems"
@@ -40,6 +41,11 @@ describe("Test ERC1155 implementation", function () {
     // gameItems = await GameItems.deploy("https://example.com/");
   });
 
+  describe("Test URI in contract", function () {
+    it("should return correct URI", async () => {
+      expect(await myERC1155.uri(12)).to.equal(uri);
+    });
+  });
   describe("Test token mint", function () {
     it("should mint correct amount of tokens to the owner", async () => {
       await myERC1155.mint(owner.address, 0, amountToTransfer, bytesData);
